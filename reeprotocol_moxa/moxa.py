@@ -1,5 +1,5 @@
-from reeprotocol.protocol import PhysicalLayer
-from reeprotocol.ip import Ip
+from iec870ree.protocol import PhysicalLayer
+from iec870ree.ip import Ip
 import threading
 import queue
 import time
