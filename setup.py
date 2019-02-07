@@ -13,7 +13,8 @@ setup(
     keywords="REE electric meters IEC 870-5-102",
     url="http://www.gisce.net",
     install_requires=[
-        'reeprotocol'
+        'iec870ree',
+        'six',
     ],
     packages=find_packages(),
     long_description=readme,

@@ -4,33 +4,43 @@ import logging
 import getopt
 import logging
 from reeprotocol_moxa import Moxa
-from reeprotocol.ip import Ip
-from reeprotocol.protocol import LinkLayer, AppLayer
-import reeprotocol.protocol
+from iec870ree.ip import Ip
+from iec870ree.protocol import LinkLayer, AppLayer
+import iec870ree.protocol
 import datetime
 
-def run_example(ip, port, der, dir_pm, clave_pm):
-    ip_layer = Ip((ip, port))
-    # Enviar comandes AT (modem)
-    physical_layer = Moxa('696569962', ip_layer)
-    link_layer = LinkLayer(der, dir_pm)
-    link_layer.initialize(physical_layer)
-    app_layer = AppLayer()
-    app_layer.initialize(link_layer)
 
-    physical_layer.connect()
-    link_layer.link_state_request()
-    link_layer.remote_link_reposition()
-    logging.info("before authentication")
-    resp = app_layer.authenticate(clave_pm)
-    logging.info("CLIENTE authenticate response {}".format(resp))
-    logging.info("before read")
-    for resp in app_layer\
-        .read_integrated_totals(datetime.datetime(2018, 4, 1, 0, 0),
-                                datetime.datetime(2018, 4, 2, 1, 0)):
-        logging.info("read response {}".format(resp))
-    physical_layer.disconnect()
-    
+def run_example(ip, port, der, dir_pm, clave_pm):
+    try:
+        ip_layer = Ip((ip, port))
+        # Enviar comandes AT (modem)
+        physical_layer = Moxa('696569962', ip_layer)
+        link_layer = LinkLayer(der, dir_pm)
+        link_layer.initialize(physical_layer)
+        app_layer = AppLayer()
+        app_layer.initialize(link_layer)
+
+        physical_layer.connect()
+        link_layer.link_state_request()
+        link_layer.remote_link_reposition()
+        logging.info("before authentication")
+        resp = app_layer.authenticate(clave_pm)
+        logging.info("CLIENTE authenticate response {}".format(resp))
+        logging.info("before read")
+        for resp in app_layer\
+            .read_absolute_values(datetime.datetime(2018, 10, 1, 1, 0),
+                                  datetime.datetime(2018, 10, 5, 0, 0)):
+            # .read_integrated_totals(datetime.datetime(2018, 4, 1, 0, 0),
+            #                         datetime.datetime(2018, 4, 2, 1, 0)):
+            logging.info("read response {}".format(resp))
+        #resp = app_layer.get_info()
+    except Exception:
+        raise
+    finally:
+        app_layer.finish_session()
+        physical_layer.disconnect()
+        sys.exit(1)
+
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
     
