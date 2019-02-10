@@ -5,7 +5,7 @@ with open('README.rst') as f:
 
 setup(
     name="reeprotocol_moxa",
-    version="0.1.0",
+    version="0.1.1",
     author="GISCE-TI, S.L.",
     author_email="devel@gisce.net",
     description="Physical layer for using a Moxa devices with reeprotocol library",
