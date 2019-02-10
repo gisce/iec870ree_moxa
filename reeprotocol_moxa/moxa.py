@@ -64,7 +64,7 @@ class Moxa(PhysicalLayer):
                 for word in self.CONNECTED_WORDS:
 
                     if word in i:
-                        logger.debug("CONNECTED!!!!!!!!!!!!!!!!!!!!")
+                        logger.debug("---- CONNECTION SUCCEEDED ----")
                         self.data_mode = True
                         self.queue.task_done()
                         time.sleep(5)  # everything smooth in read thread
@@ -81,12 +81,10 @@ class Moxa(PhysicalLayer):
 
         try:
             if self.data_mode:
-                time.sleep(1)
-                self.write("+++".encode("ascii"))
-                time.sleep(1)
-                self.data_mode = False
+                self.writeat("+++")
+                time.sleep(3)
             self.writeat("ATH0")
-            time.sleep(2)
+            time.sleep(3)
             self.ip.disconnect()
         finally:
             self.data_mode = False
