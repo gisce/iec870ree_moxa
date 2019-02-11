@@ -1,0 +1,12 @@
+language: python
+python:
+- '2.7'
+- '3.5'
+deploy:
+  provider: pypi
+  user: gisce
+  password:
+    secure: KyF5jSYKAtM7baLvt3mVWFe1YIvWjZeeCWrsC3TNCDD72UWibmWWzw7txz7UaxyH3goHWF6E/GXomq9QVK0hX26Boy3BpxZ3ByhcqtgOLTSFBCRrT6NDUYluT0VUj9UBgIZAFYVhJLrb1PEfjJzQ2kSQRBGLmXqLbYEuoYGAI8zR7vXtywYrxskeiebeMtoaplDSl8c5BLnMf7of9dcHF+MxjjtODgh4D2oXzZpMRJsvnSTDZ+xgGlLWaRduS1c5XXm6z6m/p/Gd2Jo4cA44PwsQIbMZ79I89zil3OQO/UCOJIBPGZqQ7zEYGis3OSxntgRPSVq5VIAkpm0kh6TMXxSLMN35f1jfvhxo/ru5NtdvMHhurjwYfV5vn3rTIUYKFnar2qQQQIMwp5f8T8/U+do5ujFWYbq46//2mnL4KJ0tzjuaXkDtXAHm0YTC8JQ3HpwidSXOB/nt2REjnknKUPWBkYGyA0XP/9DUH9fGkrUh8mY/nJqD9Zd7iVGTOSQixtFU/GW4xn72Y08/L3i5PiVySrnEyg6ytu8H6rGgOXg6Ar1zlzrkGfUUDlAiYwRANUqBdnIkQufGNI0kwvkWkYP23Y8Q+mxd4xsNeohElV+mzU6n1PB+rWxcLsgb6fJjs7sPpMDlqVcfkGXmGo0igbn6SKT0ka2gmVDGDq+dbT8=
+  on:
+    tags: true
+    repo: gisce/iec870ree_moxa
