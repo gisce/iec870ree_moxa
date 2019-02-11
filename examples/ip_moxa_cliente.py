@@ -3,7 +3,7 @@ import logging
 
 import getopt
 import logging
-from reeprotocol_moxa import Moxa
+from iec870ree_moxa import Moxa
 from iec870ree.ip import Ip
 from iec870ree.protocol import LinkLayer, AppLayer
 import datetime

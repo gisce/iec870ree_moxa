@@ -4,11 +4,11 @@ with open('README.rst') as f:
     readme = f.read()
 
 setup(
-    name="reeprotocol_moxa",
+    name="iec870ree_moxa",
     version="0.1.1",
     author="GISCE-TI, S.L.",
     author_email="devel@gisce.net",
-    description="Physical layer for using a Moxa devices with reeprotocol library",
+    description="Physical layer for using a Moxa devices with IEC870REE library",
     license='AGPL3',
     keywords="REE electric meters IEC 870-5-102",
     url="http://www.gisce.net",
