@@ -8,6 +8,7 @@ else:
     import queue
 import time
 import logging
+import socket
 
 logger = logging.getLogger('reeprotocol.moxa')
 
@@ -56,7 +57,7 @@ class Moxa(PhysicalLayer):
         time.sleep(1)
 
     def waitforconnect(self):
-        max_tries = 40
+        max_tries = 80
         for i in range(max_tries):
             try:
                 i = self.queue.get(False, 1)
@@ -117,13 +118,19 @@ class Moxa(PhysicalLayer):
     def read_port(self):
         logger.info("read thread Starting")
         buffer = bytearray()
+        self.ip.connection.settimeout(10.0)
         while self.connected:
             logger.debug("iterate read thread")
-            response = self.ip.connection.recv(1)
+            try:
+                response = self.ip.connection.recv(1)
+            except socket.timeout as e:
+                continue
+            except Exception as e:
+                continue
             if not response:
+                logger.debug("<- no response")
                 continue
             logger.debug("<-" + ":".join("%02x" % b for b in response))
-
             for b in response:
                 # if not self.data_mode and (b == 0x0A or b == 0x0D):
                 if not self.data_mode:
