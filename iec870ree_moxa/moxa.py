@@ -8,6 +8,7 @@ else:
     import queue
 import time
 import logging
+import socket
 
 logger = logging.getLogger('reeprotocol.moxa')
 
@@ -47,8 +48,12 @@ class Moxa(PhysicalLayer):
             raise ConnectionError(e)
 
     def initialize_modem(self):
+        self.writeat("+++", no_r=True)
+        time.sleep(3)
         self.writeat("ATZ")
         time.sleep(2)  # at least two seconds after ATZ (reset) command
+        self.writeat("ATH0")
+        time.sleep(10)
         self.writeat("AT+CBST=7,0,1")
         time.sleep(3)
         self.writeat("ATD" + str(self.phone_number))
@@ -56,7 +61,7 @@ class Moxa(PhysicalLayer):
         time.sleep(1)
 
     def waitforconnect(self):
-        max_tries = 40
+        max_tries = 80
         for i in range(max_tries):
             try:
                 i = self.queue.get(False, 1)
@@ -81,7 +86,7 @@ class Moxa(PhysicalLayer):
 
         try:
             if self.data_mode:
-                self.writeat("+++")
+                self.writeat("+++", no_r=True)
                 time.sleep(3)
             self.writeat("ATH0")
             time.sleep(3)
@@ -104,9 +109,12 @@ class Moxa(PhysicalLayer):
             raise ModemException("modem not in datamode")
         return self.queue.get(True, timeout)
 
-    def writeat(self, value):
+    def writeat(self, value, no_r=False):
         logger.info("sending command " + value)
-        self.write((value + "\r").encode("ascii"))
+        sufix = "\r"
+        if no_r:
+            sufix = ''
+        self.write((value + sufix).encode("ascii"))
 
     def write(self, value):
         if not self.connected:
@@ -117,13 +125,19 @@ class Moxa(PhysicalLayer):
     def read_port(self):
         logger.info("read thread Starting")
         buffer = bytearray()
+        self.ip.connection.settimeout(10.0)
         while self.connected:
             logger.debug("iterate read thread")
-            response = self.ip.connection.recv(1)
+            try:
+                response = self.ip.connection.recv(1)
+            except socket.timeout as e:
+                continue
+            except Exception as e:
+                continue
             if not response:
+                logger.debug("<- no response")
                 continue
             logger.debug("<-" + ":".join("%02x" % b for b in response))
-
             for b in response:
                 # if not self.data_mode and (b == 0x0A or b == 0x0D):
                 if not self.data_mode:
