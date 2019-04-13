@@ -20,7 +20,7 @@ setup(
     long_description=readme,
     classifiers=[
         "Development Status :: 1 - Planning",
-        "Topic :: Communications :: FIDO :: IEC 870-5-102",
+        "Topic :: Communications :: Telephony",
         "License :: OSI Approved :: GNU Affero General Public License v3",
     ],
 )
