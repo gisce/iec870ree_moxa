@@ -19,6 +19,7 @@ class ModemException(Exception):
 
 class Moxa(PhysicalLayer):
     CONNECTED_WORDS = ["CONNECT", "REL ASYNC"]
+    NO_CONNECT_WORDS = ["NO CARRIER", "BUSY", "NO DIALTONE",'NO ANSWER']
 
     def __init__(self, phone_number, ip_layer):
         assert isinstance(ip_layer, Ip)
@@ -74,6 +75,10 @@ class Moxa(PhysicalLayer):
                         self.queue.task_done()
                         time.sleep(5)  # everything smooth in read thread
                         return
+                for word in self.NO_CONNECT_WORDS:
+                    if word in i:
+                        logger.debug("--- NOT CONNECTED ---")
+                        raise ConnectionError("Connection not stablished: {}".format(word))
                 self.queue.task_done()
             except queue.Empty:
                 logger.debug("nothing yet...")
