@@ -5,7 +5,7 @@ with open('README.rst') as f:
 
 setup(
     name="iec870ree_moxa",
-    version="0.2.2",
+    version="0.3.0",
     author="GISCE-TI, S.L.",
     author_email="devel@gisce.net",
     description="Physical layer for using a Moxa devices with IEC870REE library",
