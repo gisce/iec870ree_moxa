@@ -59,7 +59,7 @@ class Moxa(PhysicalLayer):
         time.sleep(3)
         self.writeat("ATD" + str(self.phone_number))
         self.waitforconnect()
-        time.sleep(1)
+        time.sleep(self.ip.waiting)
 
     def waitforconnect(self):
         max_tries = 80
