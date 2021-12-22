@@ -1,2 +1,2 @@
-iec870ree
+iec870ree>=0.10.0
 six
