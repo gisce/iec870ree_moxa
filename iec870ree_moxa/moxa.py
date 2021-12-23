@@ -58,7 +58,7 @@ class Moxa(PhysicalLayer):
         split_write_sleep = self.init_string.split(';')
         for x in split_write_sleep:
             init_text, init_sleep = x.split(':')
-            if not (init_text and init_text.strip()) or not (init_sleep and init_sleep.strip()):
+            if not init_text.strip() or not init_sleep.strip():
                 raise "Init modem string has some empty values."
             self.writeat(init_text)
             time.sleep(init_sleep)

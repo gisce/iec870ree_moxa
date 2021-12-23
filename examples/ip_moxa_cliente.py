@@ -8,6 +8,13 @@ from iec870ree.ip import Ip
 from iec870ree.protocol import LinkLayer, AppLayer
 import datetime
 
+import click
+
+try:
+    from urllib.parse import urlparse
+except:
+    from urlparse import urlparse
+
 
 def run_example(ip, port, der, dir_pm, clave_pm, tlf):
     try:
@@ -28,12 +35,14 @@ def run_example(ip, port, der, dir_pm, clave_pm, tlf):
         logging.info("before read")
         resp = app_layer.get_info()
         logging.info("read response {}".format(resp))
-        for resp in app_layer\
-            .read_absolute_values(datetime.datetime(2018, 10, 1, 1, 0),
-                                  datetime.datetime(2018, 10, 5, 0, 0)):
-            # .read_integrated_totals(datetime.datetime(2018, 4, 1, 0, 0),
-            #                         datetime.datetime(2018, 4, 2, 1, 0)):
-            logging.info("read response {}".format(resp))
+        resp = app_layer.read_datetime()
+        logging.info("read response read_datetime {}".format(resp.content))
+        now = datetime.datetime.now()
+        meter_date = resp.content.tiempo.datetime
+        diff = (now - meter_date).total_seconds()
+        logging.info("NOW {}".format(now))
+        logging.info("METER DATETIME {}".format(meter_date))
+        logging.info("DIFF {}".format(diff))
     except Exception:
         raise
     finally:
@@ -41,42 +50,35 @@ def run_example(ip, port, der, dir_pm, clave_pm, tlf):
         physical_layer.disconnect()
         sys.exit(1)
 
+
+def get_connection(url):
+    url = urlparse(url)
+    # PATH is TM connection params in format TELF,DER,PM,PWD
+    telf, der, pm, pwd = url.path.replace('/', '').split(',')
+    host = url.hostname
+    port = url.port
+
+    logging.info('Started {} {} {} {} {} {}'.format(host, port, telf, der, pm, pwd))
+    return {'host': url.hostname, 'port': url.port, 'telf': telf, 'der': der, 'dir_pm': pm, 'pwd': pwd}
+
+
+@click.command()
+@click.option('-u', '--url',
+              help='URL to connect to moxa (server:port/TELF,DER,PM,PASS)',
+              type=str, default='iecmoxa://127.0.0.1:950/97221384,1,1,1', show_default=True)
+def connect_moxa(url):
+    logging.basicConfig(level=logging.INFO)
+    conn_data = get_connection(url)
+
+    run_example(
+        conn_data['host'],
+        int(conn_data['port']),
+        int(conn_data['der']),
+        int(conn_data['dir_pm']),
+        int(conn_data['pwd']),
+        conn_data['telf']
+    )
+
+
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.DEBUG)
-    
-    argv = sys.argv[1:]
-    try:
-        argv = sys.argv[1:]
-        opts, args = getopt.getopt(argv,"i:hp:d:p:c:t:",
-                                   ["ip=", "port=",
-                                    "der=", "dir_pm=", "clave_pm=", "tlf="])
-    except getopt.GetoptError:
-       logging.error('wrong command')
-       sys.exit(2)
-
-    ip = None
-    port = None
-    der = None
-    dir_pm = None
-    clave_pm = None
-    tlf = None
-    for opt, arg in opts:
-        if opt == '-h':
-          logging.error("help not implemented")
-          sys.exit()
-        elif opt in ("-p", "--port"):
-          port = int(arg)
-        elif opt in ("-n", "--ip"):
-          ip = arg
-        elif opt in ("-d", "--der"):
-          der = int(arg)
-        elif opt in ("-p", "--dir_pm"):
-          dir_pm = int(arg)
-        elif opt in ("-c", "--clave_pm"):
-          clave_pm = int(arg)
-        elif opt in ("-t", "--tlf"):
-          tlf = arg
-
-    logging.info('Started {} {} {} {} {} {}'.format(ip, port, der, dir_pm,
-                                                    clave_pm, tlf))
-    run_example(ip, port, der, dir_pm, clave_pm, tlf)
+    connect_moxa()
