@@ -17,14 +17,17 @@ class ModemException(Exception):
     pass
 
 
+DEFAULT_INIT_STRING = "ATZ:2;ATH0:3;AT+CBST=7,0,1:3"
+
 class Moxa(PhysicalLayer):
     CONNECTED_WORDS = ["CONNECT", "REL ASYNC"]
     NO_CONNECT_WORDS = ["NO CARRIER", "BUSY", "NO DIALTONE",'NO ANSWER']
 
-    def __init__(self, phone_number, ip_layer):
+    def __init__(self, phone_number, ip_layer, init_str=None):
         assert isinstance(ip_layer, Ip)
         self.phone_number = phone_number
         self.ip = ip_layer
+        self.init_string = DEFAULT_INIT_STRING if init_str is None else init_str
         self.ip.thread = threading.Thread(target=self.read_port)
         self.modem_connected = False
         self.data_mode = False
@@ -51,12 +54,15 @@ class Moxa(PhysicalLayer):
     def initialize_modem(self):
         self.writeat("+++", no_r=True)
         time.sleep(3)
-        self.writeat("ATZ")
-        time.sleep(2)  # at least two seconds after ATZ (reset) command
-        self.writeat("ATH0")
-        time.sleep(10)
-        self.writeat("AT+CBST=7,0,1")
-        time.sleep(3)
+
+        split_write_sleep = self.init_string.split(';')
+        for x in split_write_sleep:
+            init_text, init_sleep = x.split(':')
+            if not (init_text and init_text.strip()) or not (init_sleep and init_sleep.strip()):
+                raise "Init modem string has some empty values."
+            self.writeat(init_text)
+            time.sleep(init_sleep)
+
         self.writeat("ATD" + str(self.phone_number))
         self.waitforconnect()
         time.sleep(self.ip.waiting)
