@@ -61,7 +61,7 @@ class Moxa(PhysicalLayer):
             if not init_text.strip() or not init_sleep.strip():
                 raise "Init modem string has some empty values."
             self.writeat(init_text)
-            time.sleep(init_sleep)
+            time.sleep(int(init_sleep))
 
         self.writeat("ATD" + str(self.phone_number))
         self.waitforconnect()
