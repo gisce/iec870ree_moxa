@@ -51,6 +51,14 @@ class Moxa(PhysicalLayer):
             self.disconnect()
             raise ConnectionError(e)
 
+    def empty_queue(self):
+        for i in range(80):
+            try:
+                self.queue.get(False, 1)
+            except:
+                # Empty
+                break
+
     def initialize_modem(self):
         self.writeat("+++", no_r=True)
         time.sleep(3)
@@ -63,6 +71,7 @@ class Moxa(PhysicalLayer):
             self.writeat(init_text)
             time.sleep(int(init_sleep))
 
+        self.empty_queue()
         self.writeat("ATD" + str(self.phone_number))
         self.waitforconnect()
         time.sleep(self.ip.waiting)
@@ -71,18 +80,18 @@ class Moxa(PhysicalLayer):
         max_tries = 80
         for i in range(max_tries):
             try:
-                i = self.queue.get(False, 1)
-                logger.debug("got message> {}".format(i))
+                data = self.queue.get(False, 1)
+                logger.debug("got message> {}".format(data))
                 for word in self.CONNECTED_WORDS:
 
-                    if word in i:
+                    if word in data:
                         logger.debug("---- CONNECTION SUCCEEDED ----")
                         self.data_mode = True
                         self.queue.task_done()
                         time.sleep(5)  # everything smooth in read thread
                         return
                 for word in self.NO_CONNECT_WORDS:
-                    if word in i:
+                    if word in data:
                         logger.debug("--- NOT CONNECTED ---")
                         raise ConnectionError("Connection not stablished: {}".format(word))
                 self.queue.task_done()
